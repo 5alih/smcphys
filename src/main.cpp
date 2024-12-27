@@ -2,7 +2,7 @@
 
 int main() 
 {   
-	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "hi dad");
+	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "quake movement");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetExitKey(KEY_NULL);
 	MaximizeWindow();
