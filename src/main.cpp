@@ -7,13 +7,13 @@ int main()
 	SetExitKey(KEY_NULL);
 	MaximizeWindow();
 	SetTargetFPS(144);
-    
-    while (!WindowShouldClose())
-    {   
-        BeginDrawing();
-            ClearBackground(BLACK);
-        EndDrawing();
-    }
-    
-    CloseWindow();
+
+	while (!WindowShouldClose())
+	{   
+		BeginDrawing();
+			ClearBackground(BLACK);
+		EndDrawing();
+	}
+
+	CloseWindow();
 }
