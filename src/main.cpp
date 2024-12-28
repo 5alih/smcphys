@@ -6,10 +6,10 @@
 
 #define PLAYER_SPEED 5.612f
 #define JUMP_VELOCITY 8.93f
-#define PLAYER_ACCELERATION 0.098f
-#define FRICTION 0.6f
+#define PLAYER_ACCELERATION 40.0f
+#define FRICTION 0.001f
 #define GRAVITY 31.1f
-#define AIR_DRAG 3.98f
+#define AIR_DRAG 0.98f
 #define VERTICAL_DRAG_THRESHOLD 0.005f
 
 #define PLAYER_HEIGHT 1.625f
@@ -97,7 +97,7 @@ void ProcessInput(Player* player, float deltaTime) {
 void ApplyFriction(Player* player, float deltaTime){
 	float speed= Vector2Length( (Vector2){player->velocity.x, player->velocity.z} );
 
-	if(speed < 0.01f){
+	if(speed < 0.1f){
 		player->velocity= (Vector3){0};
 		return;
 	}
