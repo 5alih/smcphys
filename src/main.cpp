@@ -6,8 +6,8 @@
 
 #define PLAYER_SPEED 5.612f
 #define JUMP_VELOCITY 8.93f
-#define PLAYER_ACCELERATION 40.0f
-#define FRICTION 0.001f
+#define PLAYER_ACCELERATION 4.107f
+#define FRICTION 0.0001f
 #define GRAVITY 31.1f
 #define AIR_DRAG 0.98f
 #define VERTICAL_DRAG_THRESHOLD 0.005f
@@ -73,8 +73,8 @@ void ProcessInput(Player* player, float deltaTime) {
 		wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
 
 		playerAcceleration= wishvel;
-		playerAcceleration.x*= acclerationMultiplier *deltaTime;
-		playerAcceleration.z*= acclerationMultiplier *deltaTime;
+		playerAcceleration.x*= 10 *acclerationMultiplier *deltaTime;
+		playerAcceleration.z*= 10 *acclerationMultiplier *deltaTime;
 	}
 
 	player->velocity.x+= playerAcceleration.x;
@@ -106,7 +106,6 @@ void ApplyFriction(Player* player, float deltaTime){
 	player->velocity.z*= powf(FRICTION, deltaTime);
 	player->velocity.y= 0;
 }
-
 
 void ApplyGravity(Player* player, float deltaTime){
 	static float oldPosition= 0;
