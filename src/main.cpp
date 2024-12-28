@@ -191,6 +191,15 @@ void UpdateCamera(Player *player){
 	player->camera.target = Vector3Add(player->camera.position, forward);
 }
 
+void DrawVelocityVector(Player* player){
+	Vector3 end= Vector3Add(player->position, player->velocity);
+	Vector3 start= player->position;
+	start.y-= PLAYER_HEIGHT;
+	end.y= player->position.y -PLAYER_HEIGHT;
+	DrawLine3D(start, end, PINK);
+	DrawCube(end, 0.1f, 0.1f, 0.1f, PINK);
+}
+
 int main(){
 	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "quake movement");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
@@ -219,6 +228,8 @@ int main(){
 				DrawCube( (Vector3){player.position.x, 
 									player.position.y -PLAYER_HEIGHT,
 									player.position.z}, 0.1f, 0.1f, 0.1f, PINK);
+
+				DrawVelocityVector(&player);
 			EndMode3D();
 
 			DrawFPS(10, 10);
