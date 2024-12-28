@@ -45,9 +45,9 @@ void ProcessInput(Player* player, float deltaTime) {
 	player->angles.x= Clamp(player->angles.x -mouseDelta.y *sensitivity, -PI/2, PI/2);
 
 	Vector3 forward= {
-		cosf(player->angles.x) *cosf(player->angles.y),
-		sinf(player->angles.x),
-		cosf(player->angles.x) *sinf(player->angles.y)
+		cosf(player->angles.y),
+		0,
+		sinf(player->angles.y)
 	};
 	Vector3 right= {
 		sinf(player->angles.y),
@@ -60,16 +60,20 @@ void ProcessInput(Player* player, float deltaTime) {
 	if(IsKeyDown(KEY_S)) wishvel= Vector3Subtract(wishvel, forward);
 	if(IsKeyDown(KEY_A)) wishvel= Vector3Add(wishvel, right);
 	if(IsKeyDown(KEY_D)) wishvel= Vector3Subtract(wishvel, right);
-	wishvel.y = 0; // Zero out vertical component
+
+	if(!Vector3Equals(wishvel, (Vector3){0,0,0})){
+		wishvel= Vector3Normalize(wishvel);
+		wishvel= Vector3Scale(wishvel, PLAYER_SPEED);
+	}
 
 	// Handle jumping
-	if (IsKeyDown(KEY_SPACE) && player->onGround) {
+	if(IsKeyDown(KEY_SPACE) && player->onGround){
 		player->velocity.y= JUMP_VELOCITY;
 		player->onGround= false;
 	}
 
-	player->velocity.x= wishvel.x *PLAYER_SPEED;
-	player->velocity.z= wishvel.z *PLAYER_SPEED;
+	player->velocity.x= wishvel.x;
+	player->velocity.z= wishvel.z;
 
 	// if (!Vector3Equals(wishvel, (Vector3){0,0,0})) {
 	// 	Vector3 wishdir = Vector3Normalize(wishvel);
