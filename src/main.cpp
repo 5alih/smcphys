@@ -70,26 +70,36 @@ void ProcessInput(Player* player, float deltaTime) {
 
 	Vector3 playerAcceleration= {0};
 	if(!Vector3Equals(wishvel, (Vector3){0,0,0})){
-		wishvel= Vector3Normalize(wishvel);
-		wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
 
-		playerAcceleration= wishvel;
-		playerAcceleration.x*= 10 *acclerationMultiplier *deltaTime;
-		playerAcceleration.z*= 10 *acclerationMultiplier *deltaTime;
+		if(player->onGround){
+			wishvel= Vector3Normalize(wishvel);
+			wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
+
+			playerAcceleration= wishvel;
+			playerAcceleration.x*= 10 *acclerationMultiplier *deltaTime;
+			playerAcceleration.z*= 10 *acclerationMultiplier *deltaTime;
+		}
+		else{
+			wishvel= Vector3Normalize(wishvel);
+			wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
+
+			playerAcceleration= wishvel;
+			playerAcceleration.x*= 1 *acclerationMultiplier *deltaTime;
+			playerAcceleration.z*= 1 *acclerationMultiplier *deltaTime;
+		}
 	}
 
 	player->velocity.x+= playerAcceleration.x;
 	player->velocity.z+= playerAcceleration.z;
 
-	// Handle jumping
 	if(IsKeyDown(KEY_SPACE) && player->onGround){
 		player->velocity.y= JUMP_VELOCITY;
 
-		/* forward boost
-		forward= Vector3Scale(forward, 2.0f);
-		player->velocity.x+= forward.x;
-		player->velocity.z+= forward.z;
-		*/
+		if(acclerationMultiplier== 1.3f){
+			forward= Vector3Scale(forward, 3.3f);
+			player->velocity.x+= forward.x;
+			player->velocity.z+= forward.z;
+		}
 
 		player->onGround= false;
 	}
@@ -105,7 +115,6 @@ void ApplyFriction(Player* player, float deltaTime){
 
 	player->velocity.x*= powf(FRICTION, deltaTime);
 	player->velocity.z*= powf(FRICTION, deltaTime);
-	player->velocity.y= 0;
 }
 
 void ApplyGravity(Player* player, float deltaTime){
@@ -135,15 +144,16 @@ void ApplyGravity(Player* player, float deltaTime){
 		}
 		else if(!didPrint && oldPosition!= PLAYER_HEIGHT && oldPosition>= player->position.y){
 			didPrint= true;
-			// std::cout<< "jump height: "<< oldPosition -PLAYER_HEIGHT<< std::endl;
+			std::cout<< "jump height: "<< oldPosition -PLAYER_HEIGHT<< std::endl;
 		}
 	}
 	else{
 		player->velocity.y= 0;
 		didPrint= false;
 		if(timer!= 0){
-			// std::cout<< "timer: "<< timer/GetFPS() << std::endl;
+			std::cout<< "timer: "<< timer/GetFPS() << std::endl;
 			std::cout<< "Distance: "<< Vector3Distance(firstPos, player->position)<< std::endl;
+			std::cout<< "____________________________________________________"<< std::endl;
 		}
 		timer= 0;
 		isFirstTime= true;
@@ -156,9 +166,7 @@ void UpdatePlayer(Player* player, float deltaTime) {
 	if(player->onGround){
 	 	ApplyFriction(player, deltaTime);
 	}
-	else{
-		ApplyGravity(player, deltaTime);
-	}
+	ApplyGravity(player, deltaTime);
 	
 	player->position= Vector3Add(player->position, 
 		Vector3Scale(player->velocity, deltaTime));
