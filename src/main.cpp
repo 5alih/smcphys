@@ -66,6 +66,7 @@ void ProcessInput(Player* player, float deltaTime) {
 	if(IsKeyDown(KEY_D)) wishvel= Vector3Subtract(wishvel, right);
 
 	if(IsKeyDown(KEY_LEFT_CONTROL)) acclerationMultiplier= 1.3f;
+	if(IsKeyDown(KEY_LEFT_SHIFT)) acclerationMultiplier= 0.3f;
 
 	Vector3 playerAcceleration= {0};
 	if(!Vector3Equals(wishvel, (Vector3){0,0,0})){
@@ -97,7 +98,7 @@ void ProcessInput(Player* player, float deltaTime) {
 void ApplyFriction(Player* player, float deltaTime){
 	float speed= Vector2Length( (Vector2){player->velocity.x, player->velocity.z} );
 
-	if(speed < 0.1f){
+	if(speed < 0.01f){
 		player->velocity= (Vector3){0};
 		return;
 	}
