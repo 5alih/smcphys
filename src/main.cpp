@@ -8,8 +8,10 @@
 #define JUMP_VELOCITY 9.17f
 #define PLAYER_ACCELERATION 4.107f
 #define FRICTION 0.0001f
+#define FRICTION_AIR 0.00001f
+#define AIR_ACCEL_MULTIPLIER 1.1f //1.3f
 #define GRAVITY 31.55f
-#define AIR_DRAG 0.667f
+#define AIR_DRAG 0.8f
 #define VERTICAL_DRAG_THRESHOLD 0.005f
 
 #define PLAYER_HEIGHT 1.62f
@@ -85,8 +87,8 @@ void ProcessInput(Player* player, float deltaTime) {
 			wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
 
 			playerAcceleration= wishvel;
-			playerAcceleration.x*= 2 *acclerationMultiplier *deltaTime;
-			playerAcceleration.z*= 2 *acclerationMultiplier *deltaTime;
+			playerAcceleration.x*= 10 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier *deltaTime;
+			playerAcceleration.z*= 10 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier *deltaTime;
 		}
 	}
 
@@ -97,7 +99,7 @@ void ProcessInput(Player* player, float deltaTime) {
 		player->velocity.y= JUMP_VELOCITY;
 
 		if(acclerationMultiplier== 1.3f){
-			forward= Vector3Scale(forward, 3.3f);
+			forward= Vector3Scale(forward, 17.0f);	//boost
 			player->velocity.x+= forward.x;
 			player->velocity.z+= forward.z;
 		}
@@ -129,8 +131,8 @@ void ApplyGravity(Player* player, float deltaTime){
 		player->velocity.y-= GRAVITY *deltaTime;
 		player->velocity.y*= powf(AIR_DRAG, deltaTime);
 		
-		player->velocity.x*= powf(AIR_DRAG, deltaTime);
-		player->velocity.z*= powf(AIR_DRAG, deltaTime);
+		player->velocity.x*= powf(FRICTION_AIR, deltaTime);
+		player->velocity.z*= powf(FRICTION_AIR, deltaTime);
 
         if(fabs(player->velocity.y) < VERTICAL_DRAG_THRESHOLD){
             player->velocity.y = 0.0f;
@@ -219,7 +221,7 @@ int main(){
 	
 	while(!WindowShouldClose())
 	{   
-		float deltaTime= GetFrameTime();
+		float deltaTime= GetFrameTime(); //		/20.0f
 		UpdatePlayer(&player, deltaTime);
 
 		// UpdateCamera(&player.camera, CAMERA_CUSTOM);
@@ -235,7 +237,7 @@ int main(){
 									player.position.y -PLAYER_HEIGHT,
 									player.position.z}, 0.1f, 0.1f, 0.1f, PINK);
 
-				DrawVelocityVector(&player);
+//				DrawVelocityVector(&player);
 			EndMode3D();
 
 			DrawFPS(10, 10);
@@ -244,7 +246,8 @@ int main(){
 			std::sprintf(velocity, "%.3f", Vector3Length(player.velocity));
 			DrawText(velocity, 10, 90, 20, YELLOW);
 
-			DrawText(std::to_string((int)player.onGround).c_str(), 10, 110, 20, WHITE);
+			std::sprintf(velocity, "%.3f", Vector2Length( (Vector2){player.velocity.x, player.velocity.z} ));
+			DrawText(velocity, 10, 110, 20, PURPLE);
 
 			DrawText(std::to_string((int)player.position.x).c_str(), 10, 30, 20, WHITE);
 			std::sprintf(velocity, "%.3f", player.position.y);
