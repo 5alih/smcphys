@@ -8,9 +8,9 @@
 #define JUMP_VELOCITY 9.17f
 #define PLAYER_ACCELERATION 4.107f
 #define FRICTION 0.0001f
-#define FRICTION_AIR 0.00001f
-#define AIR_ACCEL_MULTIPLIER 1.1f //1.3f
-#define GRAVITY 31.55f
+#define FRICTION_AIR 0.00396f
+#define AIR_ACCEL_MULTIPLIER 0.4f //1.3f
+#define GRAVITY 31.4f
 #define AIR_DRAG 0.8f
 #define VERTICAL_DRAG_THRESHOLD 0.005f
 
@@ -99,7 +99,7 @@ void ProcessInput(Player* player, float deltaTime) {
 		player->velocity.y= JUMP_VELOCITY;
 
 		if(acclerationMultiplier== 1.3f){
-			forward= Vector3Scale(forward, 17.0f);	//boost
+			forward= Vector3Scale(forward, 4.0f);	//boost
 			player->velocity.x+= forward.x;
 			player->velocity.z+= forward.z;
 		}
@@ -244,15 +244,10 @@ int main(){
 
 			char velocity[32];
 			std::sprintf(velocity, "%.3f", Vector3Length(player.velocity));
-			DrawText(velocity, 10, 90, 20, YELLOW);
+			DrawText(velocity, 10, 30, 20, YELLOW);
 
 			std::sprintf(velocity, "%.3f", Vector2Length( (Vector2){player.velocity.x, player.velocity.z} ));
-			DrawText(velocity, 10, 110, 20, PURPLE);
-
-			DrawText(std::to_string((int)player.position.x).c_str(), 10, 30, 20, WHITE);
-			std::sprintf(velocity, "%.3f", player.position.y);
-			DrawText(velocity, 10, 50, 20, WHITE);
-			DrawText(std::to_string((int)player.position.z).c_str(), 10, 70, 20, WHITE);
+			DrawText(velocity, 10, 50, 20, PURPLE);
 		EndDrawing();
 	}
 	
