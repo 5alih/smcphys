@@ -5,14 +5,15 @@
 #include <iostream>
 
 #define PLAYER_SPEED 5.612f
-#define JUMP_VELOCITY 8.93f
+#define JUMP_VELOCITY 9.17f
 #define PLAYER_ACCELERATION 4.107f
 #define FRICTION 0.0001f
-#define GRAVITY 31.1f
-#define AIR_DRAG 0.98f
+#define GRAVITY 31.55f
+#define AIR_DRAG 0.667f
 #define VERTICAL_DRAG_THRESHOLD 0.005f
 
-#define PLAYER_HEIGHT 1.625f
+#define PLAYER_HEIGHT 1.62f
+#define PLAYER_SNEAK_HEIGHT 1.54f
 #define SENSIVITY 0.002f
 
 typedef struct {
@@ -66,7 +67,7 @@ void ProcessInput(Player* player, float deltaTime) {
 	if(IsKeyDown(KEY_D)) wishvel= Vector3Subtract(wishvel, right);
 
 	if(IsKeyDown(KEY_LEFT_CONTROL)) acclerationMultiplier= 1.3f;
-	if(IsKeyDown(KEY_LEFT_SHIFT)) acclerationMultiplier= 0.3f;
+	if(IsKeyDown(KEY_LEFT_SHIFT))	acclerationMultiplier= 0.3f;
 
 	Vector3 playerAcceleration= {0};
 	if(!Vector3Equals(wishvel, (Vector3){0,0,0})){
@@ -84,8 +85,8 @@ void ProcessInput(Player* player, float deltaTime) {
 			wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
 
 			playerAcceleration= wishvel;
-			playerAcceleration.x*= 1 *acclerationMultiplier *deltaTime;
-			playerAcceleration.z*= 1 *acclerationMultiplier *deltaTime;
+			playerAcceleration.x*= 2 *acclerationMultiplier *deltaTime;
+			playerAcceleration.z*= 2 *acclerationMultiplier *deltaTime;
 		}
 	}
 
@@ -127,6 +128,9 @@ void ApplyGravity(Player* player, float deltaTime){
 	if(!player->onGround){
 		player->velocity.y-= GRAVITY *deltaTime;
 		player->velocity.y*= powf(AIR_DRAG, deltaTime);
+		
+		player->velocity.x*= powf(AIR_DRAG, deltaTime);
+		player->velocity.z*= powf(AIR_DRAG, deltaTime);
 
         if(fabs(player->velocity.y) < VERTICAL_DRAG_THRESHOLD){
             player->velocity.y = 0.0f;
@@ -134,6 +138,8 @@ void ApplyGravity(Player* player, float deltaTime){
 
 		if(isFirstTime){
 			std::cout<< "Velocity: "<< Vector3Length(player->velocity)<< std::endl;
+			std::cout<< "Horizontal Velocity: "<< Vector2Length( (Vector2){player->velocity.x, player->velocity.z} )<< std::endl;
+
 			firstPos= player->position;
 			isFirstTime= false;
 		}
