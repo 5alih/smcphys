@@ -4,13 +4,11 @@
 #include <string>
 #include <iostream>
 
-#define PLAYER_SPEED 5.612f
 #define JUMP_VELOCITY 8.4f
-#define PLAYER_ACCELERATION 4.107f
-#define FRICTION 0.53668f
-#define FRICTION_AIR 0.53668f
+#define FRICTION 0.546f
+#define FRICTION_AIR 0.546f
 #define AIR_ACCEL_MULTIPLIER 0.2f
-#define GRAVITY 20.0f
+#define GRAVITY 17.232574f
 #define AIR_DRAG 0.98f
 #define VERTICAL_DRAG_THRESHOLD 0.005f
 
@@ -78,18 +76,18 @@ void ProcessInput(Player* player, float deltaTime) {
 		if(player->onGround){
 			wishvel= Vector3Normalize(wishvel);
 
-			playerAcceleration.x= 2 *acclerationMultiplier;
-			playerAcceleration.z= 2 *acclerationMultiplier;
+			playerAcceleration.x= 20 *0.098 *acclerationMultiplier;
+			playerAcceleration.z= 20 *0.098 *acclerationMultiplier;
 			
 			wishvel= Vector3Multiply(wishvel, playerAcceleration);
 		}
 		else{
 			wishvel= Vector3Normalize(wishvel);
-			wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
 
-			playerAcceleration= wishvel;
-			playerAcceleration.x*= 10 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier *deltaTime;
-			playerAcceleration.z*= 10 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier *deltaTime;
+			playerAcceleration.x= 20 *0.098 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier;
+			playerAcceleration.z= 20 *0.098 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier;
+			
+			wishvel= Vector3Multiply(wishvel, playerAcceleration);
 		}
 	}
 
@@ -128,6 +126,8 @@ void ApplyGravity(Player* player, float deltaTime){
 	static bool isFirstTime= true;
 	static Vector3 firstPos= {0};
 
+	static int drag_counter= 0;
+
 	if(!player->onGround){
 		if(isFirstTime){
 			std::cout<< "Velocity: "<< Vector3Length(player->velocity)<< std::endl;
@@ -138,7 +138,12 @@ void ApplyGravity(Player* player, float deltaTime){
 		}
 
 		player->velocity.y-= GRAVITY *deltaTime;
-		player->velocity.y*= AIR_DRAG;
+
+		drag_counter++;
+		if(drag_counter== GetFPS()/20){
+			player->velocity.y*= AIR_DRAG;
+			drag_counter= 0;
+		}
 		
 		player->velocity.x*= FRICTION_AIR;
 		player->velocity.z*= FRICTION_AIR;
