@@ -4,14 +4,12 @@
 #include <string>
 #include <iostream>
 
-#define PLAYER_SPEED 5.612f
-#define JUMP_VELOCITY 8.4f //	9.17f					//initial jumping velocity
-#define PLAYER_ACCELERATION 4.107f
-#define FRICTION 0.0001f					
-#define FRICTION_AIR 1.0f	//0.009f					//air friction for horizontal movement
-#define AIR_ACCEL_MULTIPLIER 0.2f	//0.4f //1.3f	//horizontal movement air acceleration multiplier
-#define GRAVITY 23.45f						//gravity	
-#define AIR_DRAG 0.2f						//vertical air drag
+#define JUMP_VELOCITY 8.4f
+#define FRICTION 0.546f
+#define FRICTION_AIR 0.91f
+#define AIR_ACCEL_MULTIPLIER 0.2f
+#define GRAVITY 27.2f
+#define AIR_DRAG 0.98f
 #define VERTICAL_DRAG_THRESHOLD 0.005f
 
 #define PLAYER_HEIGHT 1.62f
@@ -77,27 +75,26 @@ void ProcessInput(Player* player, float deltaTime) {
 
 		if(player->onGround){
 			wishvel= Vector3Normalize(wishvel);
-			wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
 
-			playerAcceleration= wishvel;
-			playerAcceleration.x*= 10 *acclerationMultiplier *deltaTime;
-			playerAcceleration.z*= 10 *acclerationMultiplier *deltaTime;
+			playerAcceleration.x= 20 *0.098 *acclerationMultiplier;
+			playerAcceleration.z= 20 *0.098 *acclerationMultiplier;
+			
+			wishvel= Vector3Multiply(wishvel, playerAcceleration);
 		}
 		else{
 			wishvel= Vector3Normalize(wishvel);
-			wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
 
-			playerAcceleration= wishvel;
-			playerAcceleration.x*= 10 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier *deltaTime;
-			playerAcceleration.z*= 10 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier *deltaTime;
+			playerAcceleration.x= 20 *0.098 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier;
+			playerAcceleration.z= 20 *0.098 *AIR_ACCEL_MULTIPLIER *acclerationMultiplier;
+			
+			wishvel= Vector3Multiply(wishvel, playerAcceleration);
 		}
 	}
 
-	player->velocity.x+= playerAcceleration.x;
-	player->velocity.z+= playerAcceleration.z;
+	player->velocity= Vector3Add(player->velocity, wishvel);
 
 	if(IsKeyDown(KEY_SPACE) && player->onGround){
-		ApplyFriction(player, deltaTime);
+		// ApplyFriction(player, deltaTime);
 		player->velocity.y= JUMP_VELOCITY;
 
 		if(acclerationMultiplier== 1.3f){
@@ -118,8 +115,8 @@ void ApplyFriction(Player* player, float deltaTime){
 		return;
 	}
 
-	player->velocity.x*= powf(FRICTION, deltaTime);
-	player->velocity.z*= powf(FRICTION, deltaTime);
+	player->velocity.x*= FRICTION;
+	player->velocity.z*= FRICTION;
 }
 
 void ApplyGravity(Player* player, float deltaTime){
@@ -128,6 +125,8 @@ void ApplyGravity(Player* player, float deltaTime){
 	static float timer= 0;
 	static bool isFirstTime= true;
 	static Vector3 firstPos= {0};
+
+	static int drag_counter= 1;
 
 	if(!player->onGround){
 		if(isFirstTime){
@@ -139,10 +138,15 @@ void ApplyGravity(Player* player, float deltaTime){
 		}
 
 		player->velocity.y-= GRAVITY *deltaTime;
-		player->velocity.y*= powf(AIR_DRAG, deltaTime);
+
+		if(drag_counter>= 1.0f/(20 * deltaTime) ){
+			player->velocity.y*= AIR_DRAG;
+			drag_counter= 0;
+		}
+		drag_counter++;
 		
-		player->velocity.x*= powf(FRICTION_AIR, deltaTime);
-		player->velocity.z*= powf(FRICTION_AIR, deltaTime);
+		player->velocity.x*= FRICTION_AIR;
+		player->velocity.z*= FRICTION_AIR;
 
         if(fabs(player->velocity.y) < VERTICAL_DRAG_THRESHOLD){
             player->velocity.y = 0.0f;
@@ -171,12 +175,12 @@ void ApplyGravity(Player* player, float deltaTime){
 }
 
 void UpdatePlayer(Player* player, float deltaTime) {
-	ProcessInput(player, deltaTime);
-	
 	if(player->onGround){
 	 	ApplyFriction(player, deltaTime);
 	}
 	ApplyGravity(player, deltaTime);
+
+	ProcessInput(player, deltaTime);
 	
 	player->position= Vector3Add(player->position, 
 		Vector3Scale(player->velocity, deltaTime));
@@ -211,11 +215,11 @@ void DrawVelocityVector(Player* player){
 }
 
 int main(){
-	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "quake movement");
+	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "minecraft movement");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetExitKey(KEY_NULL);
 	MaximizeWindow();
-	SetTargetFPS(144);
+	SetTargetFPS(240);
 	DisableCursor();
 	
 	Player player;
@@ -243,9 +247,7 @@ int main(){
 			frameCounter= 0;
 			totalVeclocity= 0;
 			totalVeclocityHorizontal= 0;
-		} 
-
-		// UpdateCamera(&player.camera, CAMERA_CUSTOM);
+		}
 
 		BeginDrawing();
 			ClearBackground(BLACK);
