@@ -5,13 +5,13 @@
 #include <iostream>
 
 #define PLAYER_SPEED 5.612f
-#define JUMP_VELOCITY 8.4f //	9.17f					//initial jumping velocity
+#define JUMP_VELOCITY 8.4f
 #define PLAYER_ACCELERATION 4.107f
-#define FRICTION 0.0001f					
-#define FRICTION_AIR 1.0f	//0.009f					//air friction for horizontal movement
-#define AIR_ACCEL_MULTIPLIER 0.2f	//0.4f //1.3f	//horizontal movement air acceleration multiplier
-#define GRAVITY 23.45f						//gravity	
-#define AIR_DRAG 0.2f						//vertical air drag
+#define FRICTION 0.53668f
+#define FRICTION_AIR 0.53668f
+#define AIR_ACCEL_MULTIPLIER 0.2f
+#define GRAVITY 20.0f
+#define AIR_DRAG 0.98f
 #define VERTICAL_DRAG_THRESHOLD 0.005f
 
 #define PLAYER_HEIGHT 1.62f
@@ -77,11 +77,11 @@ void ProcessInput(Player* player, float deltaTime) {
 
 		if(player->onGround){
 			wishvel= Vector3Normalize(wishvel);
-			wishvel= Vector3Scale(wishvel, PLAYER_ACCELERATION);
 
-			playerAcceleration= wishvel;
-			playerAcceleration.x*= 10 *acclerationMultiplier *deltaTime;
-			playerAcceleration.z*= 10 *acclerationMultiplier *deltaTime;
+			playerAcceleration.x= 2 *acclerationMultiplier;
+			playerAcceleration.z= 2 *acclerationMultiplier;
+			
+			wishvel= Vector3Multiply(wishvel, playerAcceleration);
 		}
 		else{
 			wishvel= Vector3Normalize(wishvel);
@@ -93,8 +93,7 @@ void ProcessInput(Player* player, float deltaTime) {
 		}
 	}
 
-	player->velocity.x+= playerAcceleration.x;
-	player->velocity.z+= playerAcceleration.z;
+	player->velocity= Vector3Add(player->velocity, wishvel);
 
 	if(IsKeyDown(KEY_SPACE) && player->onGround){
 		ApplyFriction(player, deltaTime);
@@ -118,8 +117,8 @@ void ApplyFriction(Player* player, float deltaTime){
 		return;
 	}
 
-	player->velocity.x*= powf(FRICTION, deltaTime);
-	player->velocity.z*= powf(FRICTION, deltaTime);
+	player->velocity.x*= FRICTION;
+	player->velocity.z*= FRICTION;
 }
 
 void ApplyGravity(Player* player, float deltaTime){
@@ -139,10 +138,10 @@ void ApplyGravity(Player* player, float deltaTime){
 		}
 
 		player->velocity.y-= GRAVITY *deltaTime;
-		player->velocity.y*= powf(AIR_DRAG, deltaTime);
+		player->velocity.y*= AIR_DRAG;
 		
-		player->velocity.x*= powf(FRICTION_AIR, deltaTime);
-		player->velocity.z*= powf(FRICTION_AIR, deltaTime);
+		player->velocity.x*= FRICTION_AIR;
+		player->velocity.z*= FRICTION_AIR;
 
         if(fabs(player->velocity.y) < VERTICAL_DRAG_THRESHOLD){
             player->velocity.y = 0.0f;
@@ -171,12 +170,12 @@ void ApplyGravity(Player* player, float deltaTime){
 }
 
 void UpdatePlayer(Player* player, float deltaTime) {
-	ProcessInput(player, deltaTime);
-	
 	if(player->onGround){
 	 	ApplyFriction(player, deltaTime);
 	}
 	ApplyGravity(player, deltaTime);
+
+	ProcessInput(player, deltaTime);
 	
 	player->position= Vector3Add(player->position, 
 		Vector3Scale(player->velocity, deltaTime));
@@ -215,7 +214,7 @@ int main(){
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetExitKey(KEY_NULL);
 	MaximizeWindow();
-	SetTargetFPS(144);
+	SetTargetFPS(240);
 	DisableCursor();
 	
 	Player player;
