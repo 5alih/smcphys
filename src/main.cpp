@@ -5,13 +5,13 @@
 #include <iostream>
 
 #define PLAYER_SPEED 5.612f
-#define JUMP_VELOCITY 9.17f
+#define JUMP_VELOCITY 8.4f //	9.17f					//initial jumping velocity
 #define PLAYER_ACCELERATION 4.107f
-#define FRICTION 0.0001f
-#define FRICTION_AIR 0.00396f
-#define AIR_ACCEL_MULTIPLIER 0.4f //1.3f
-#define GRAVITY 31.4f
-#define AIR_DRAG 0.8f
+#define FRICTION 0.0001f					
+#define FRICTION_AIR 1.0f	//0.009f					//air friction for horizontal movement
+#define AIR_ACCEL_MULTIPLIER 0.2f	//0.4f //1.3f	//horizontal movement air acceleration multiplier
+#define GRAVITY 23.45f						//gravity	
+#define AIR_DRAG 0.2f						//vertical air drag
 #define VERTICAL_DRAG_THRESHOLD 0.005f
 
 #define PLAYER_HEIGHT 1.62f
@@ -27,6 +27,7 @@ typedef struct {
 } Player;
 
 void UpdateCamera(Player *player);
+void ApplyFriction(Player* player, float deltaTime);
 
 void InitPlayer(Player* player) 
 {
@@ -96,10 +97,11 @@ void ProcessInput(Player* player, float deltaTime) {
 	player->velocity.z+= playerAcceleration.z;
 
 	if(IsKeyDown(KEY_SPACE) && player->onGround){
+		ApplyFriction(player, deltaTime);
 		player->velocity.y= JUMP_VELOCITY;
 
 		if(acclerationMultiplier== 1.3f){
-			forward= Vector3Scale(forward, 4.0f);	//boost
+			forward= Vector3Scale(forward, 4.0f);	//boost 4.5f
 			player->velocity.x+= forward.x;
 			player->velocity.z+= forward.z;
 		}
@@ -128,6 +130,14 @@ void ApplyGravity(Player* player, float deltaTime){
 	static Vector3 firstPos= {0};
 
 	if(!player->onGround){
+		if(isFirstTime){
+			std::cout<< "Velocity: "<< Vector3Length(player->velocity)<< std::endl;
+			std::cout<< "Horizontal Velocity: "<< Vector2Length( (Vector2){player->velocity.x, player->velocity.z} )<< std::endl;
+
+			firstPos= player->position;
+			isFirstTime= false;
+		}
+
 		player->velocity.y-= GRAVITY *deltaTime;
 		player->velocity.y*= powf(AIR_DRAG, deltaTime);
 		
@@ -137,14 +147,6 @@ void ApplyGravity(Player* player, float deltaTime){
         if(fabs(player->velocity.y) < VERTICAL_DRAG_THRESHOLD){
             player->velocity.y = 0.0f;
         }
-
-		if(isFirstTime){
-			std::cout<< "Velocity: "<< Vector3Length(player->velocity)<< std::endl;
-			std::cout<< "Horizontal Velocity: "<< Vector2Length( (Vector2){player->velocity.x, player->velocity.z} )<< std::endl;
-
-			firstPos= player->position;
-			isFirstTime= false;
-		}
 
 		timer++;
 		if(oldPosition< player->position.y){
@@ -219,10 +221,29 @@ int main(){
 	Player player;
 	InitPlayer(&player);
 	
+	float counter= 0;
+	float frameCounter= 0;
+	float avgVelocity= 0;
+	float avgVelocityHorizontal= 0;
+	float totalVeclocity= 0;
+	float totalVeclocityHorizontal= 0;
 	while(!WindowShouldClose())
-	{   
+	{
 		float deltaTime= GetFrameTime(); //		/20.0f
 		UpdatePlayer(&player, deltaTime);
+		
+		counter+= deltaTime;
+		frameCounter++;
+		totalVeclocity+= Vector3Length(player.velocity);
+		totalVeclocityHorizontal+= Vector2Length( (Vector2){player.velocity.x, player.velocity.z} );
+		if(counter>= 3.0f){
+			avgVelocity= totalVeclocity/frameCounter;
+			avgVelocityHorizontal= totalVeclocityHorizontal/frameCounter;
+			counter= 0;
+			frameCounter= 0;
+			totalVeclocity= 0;
+			totalVeclocityHorizontal= 0;
+		} 
 
 		// UpdateCamera(&player.camera, CAMERA_CUSTOM);
 
@@ -237,17 +258,23 @@ int main(){
 									player.position.y -PLAYER_HEIGHT,
 									player.position.z}, 0.1f, 0.1f, 0.1f, PINK);
 
-//				DrawVelocityVector(&player);
+				DrawVelocityVector(&player);
 			EndMode3D();
 
 			DrawFPS(10, 10);
 
 			char velocity[32];
 			std::sprintf(velocity, "%.3f", Vector3Length(player.velocity));
-			DrawText(velocity, 10, 30, 20, YELLOW);
+			DrawText(velocity, 10, 30, 20, GOLD);
 
 			std::sprintf(velocity, "%.3f", Vector2Length( (Vector2){player.velocity.x, player.velocity.z} ));
 			DrawText(velocity, 10, 50, 20, PURPLE);
+
+			std::sprintf(velocity, "%.3f", avgVelocity);
+			DrawText(velocity, 10, 70, 20, (Color){105, 86, 24, 255} );
+
+			std::sprintf(velocity, "%.3f", avgVelocityHorizontal);
+			DrawText(velocity, 10, 90, 20, (Color){83, 63, 96, 255} );
 		EndDrawing();
 	}
 	
