@@ -6,9 +6,9 @@
 
 #define JUMP_VELOCITY 8.4f
 #define FRICTION 0.546f
-#define FRICTION_AIR 0.546f
+#define FRICTION_AIR 0.91f
 #define AIR_ACCEL_MULTIPLIER 0.2f
-#define GRAVITY 17.232574f
+#define GRAVITY 27.2f
 #define AIR_DRAG 0.98f
 #define VERTICAL_DRAG_THRESHOLD 0.005f
 
@@ -94,7 +94,7 @@ void ProcessInput(Player* player, float deltaTime) {
 	player->velocity= Vector3Add(player->velocity, wishvel);
 
 	if(IsKeyDown(KEY_SPACE) && player->onGround){
-		ApplyFriction(player, deltaTime);
+		// ApplyFriction(player, deltaTime);
 		player->velocity.y= JUMP_VELOCITY;
 
 		if(acclerationMultiplier== 1.3f){
@@ -126,7 +126,7 @@ void ApplyGravity(Player* player, float deltaTime){
 	static bool isFirstTime= true;
 	static Vector3 firstPos= {0};
 
-	static int drag_counter= 0;
+	static int drag_counter= 1;
 
 	if(!player->onGround){
 		if(isFirstTime){
@@ -139,11 +139,11 @@ void ApplyGravity(Player* player, float deltaTime){
 
 		player->velocity.y-= GRAVITY *deltaTime;
 
-		drag_counter++;
-		if(drag_counter== GetFPS()/20){
+		if(drag_counter>= 1.0f/(20 * deltaTime) ){
 			player->velocity.y*= AIR_DRAG;
 			drag_counter= 0;
 		}
+		drag_counter++;
 		
 		player->velocity.x*= FRICTION_AIR;
 		player->velocity.z*= FRICTION_AIR;
@@ -215,7 +215,7 @@ void DrawVelocityVector(Player* player){
 }
 
 int main(){
-	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "quake movement");
+	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "minecraft movement");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetExitKey(KEY_NULL);
 	MaximizeWindow();
@@ -247,9 +247,7 @@ int main(){
 			frameCounter= 0;
 			totalVeclocity= 0;
 			totalVeclocityHorizontal= 0;
-		} 
-
-		// UpdateCamera(&player.camera, CAMERA_CUSTOM);
+		}
 
 		BeginDrawing();
 			ClearBackground(BLACK);
