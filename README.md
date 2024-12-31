@@ -2,6 +2,7 @@
 # smcphys.h
 
 A single-header library that replicates Minecraft's movement physics in C/C++. Built with raylib for rendering and input handling.
+There is a branch for C++ version too.
 
 ## Features
 - Accurate Minecraft-like movement physics
@@ -24,7 +25,7 @@ A single-header library that replicates Minecraft's movement physics in C/C++. B
 #include "smcphys.h"
 
 int main() {
-    InitWindow(800, 600, "Example");
+    InitWindow(800, 600, "C Example");
     
     Player player; // Create the player
     InitPlayer(&player); // Initialize player
@@ -46,16 +47,15 @@ int main() {
 #include "smcphys.h"
 
 int main() {
-    InitWindow(800, 600, "Example");
+    InitWindow(800, 600, "C++ Example");
     
     Player player; // Create the player
-    InitPlayer(&player); // Initialize player
     
     while (!WindowShouldClose()) {
-        UpdatePlayer(&player, GetFrameTime()); // Update the player
+        player.Update(GetFrameTime()); // Update the player
         
         BeginDrawing();
-            BeginMode3D(player.camera); // Use player camera
+            BeginMode3D(player.GetCamera()); // Use player camera
                 // Your 3D rendering
             EndMode3D();
         EndDrawing();
@@ -72,7 +72,8 @@ int main() {
 
 
 ## Debug Tools
-- `DrawDebugVector(&player)`: Visualizes velocity vector
+- `DrawDebugVector(&player)`: Visualizes velocity vector (C)
+- `player.DrawDebugVector()`: Visualizes velocity vector (C++)
 - Built-in velocity magnitude display
 - Ground state indicator
 

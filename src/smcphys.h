@@ -62,7 +62,7 @@ void ApplyGravity(Player* player){
 		player->velocity.z*= FRICTION_AIR;
 
 		if(fabs(player->velocity.y) < VERTICAL_DRAG_THRESHOLD){
-			player->velocity.y = 0.0f;
+			player->velocity.y= 0.0f;
 		}
 	}
 	else{
@@ -71,13 +71,13 @@ void ApplyGravity(Player* player){
 }
 
 void UpdateCamera(Player *player){
-	player->camera.position = player->position;
+	player->camera.position= player->position;
 	Vector3 forward;
 	forward.x= cosf(player->angles.x) *cosf(player->angles.y);
 	forward.y= sinf(player->angles.x);
 	forward.z= cosf(player->angles.x) *sinf(player->angles.y);
 	
-	player->camera.target = Vector3Add(player->camera.position, forward);
+	player->camera.target= Vector3Add(player->camera.position, forward);
 }
 
 void ProcessInput(Player* player, bool is_tick20){
@@ -159,19 +159,16 @@ void ProcessInput(Player* player, bool is_tick20){
 	}
 }
 
-void UpdatePlayer(Player* player, float deltaTime) {
-	// Keep track of accumulated time between ticks
+void UpdatePlayer(Player* player, float deltaTime){
 	static float tickAccumulator= 0.0f;
 	const float tickRate= 1.0f/20.0f; // 20 ticks per second
 	bool is_tick20= false;
 
-	// Accumulate time
 	tickAccumulator+= deltaTime;
 
-	// Check if enough time has passed for a tick
-	if(tickAccumulator>= tickRate) {
+	if(tickAccumulator>= tickRate){
 		is_tick20= true;
-		tickAccumulator-= tickRate; // Subtract tick time but keep remainder
+		tickAccumulator-= tickRate;
 	}
 	
 	if(player->position.y<= player->height){
