@@ -202,6 +202,10 @@ void DrawDebugVector(Player* player){
 	end.y= player->position.y -player->height;
 	DrawLine3D(start, end, PINK);
 	DrawCube(end, 0.1f, 0.1f, 0.1f, PINK);
+
+    DrawCube( (Vector3){player->position.x,
+                        player->position.y -player->height,
+                        player->position.z}, 0.1f, 0.1f, 0.1f, PINK);
 }
 
 #endif // SMCPHYS_H

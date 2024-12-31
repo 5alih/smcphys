@@ -1,7 +1,7 @@
 #include "smcphys.h"
 
 int main(){
-	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "minecraft movement");
+	InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "smcphys | minecraft movement");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetExitKey(KEY_NULL);
 	MaximizeWindow();
@@ -23,9 +23,6 @@ int main(){
 				DrawGrid(100, 1.0f);
 				DrawCube( (Vector3){0, 1, 0} , 1.0f, 2.0f, 1.0f, YELLOW);
 				DrawCube( (Vector3){0, 0.5, 1} , 1.0f, 1.0f, 1.0f, DARKBLUE);
-				DrawCube( (Vector3){player.position.x,
-									player.position.y -player.height,
-									player.position.z}, 0.1f, 0.1f, 0.1f, PINK);
 
 				DrawDebugVector(&player);
 			EndMode3D();
