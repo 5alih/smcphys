@@ -73,9 +73,9 @@ void ApplyGravity(Player* player){
 void UpdateCamera(Player *player){
 	player->camera.position = player->position;
 	Vector3 forward;
-	forward.x= cosf(player->angles.x) * cosf(player->angles.y);
+	forward.x= cosf(player->angles.x) *cosf(player->angles.y);
 	forward.y= sinf(player->angles.x);
-	forward.z= cosf(player->angles.x) * sinf(player->angles.y);
+	forward.z= cosf(player->angles.x) *sinf(player->angles.y);
 	
 	player->camera.target = Vector3Add(player->camera.position, forward);
 }
@@ -125,7 +125,7 @@ void ProcessInput(Player* player, bool is_tick20){
 			player->velocity.y= JUMP_VELOCITY;
 
 			if(acclerationMultiplier== 1.3f){
-				forward= Vector3Scale(forward, 4.0f);	//boost 4.5f
+				forward= Vector3Scale(forward, 4.0f);
 				player->velocity.x+= forward.x;
 				player->velocity.z+= forward.z;
 			}
@@ -202,6 +202,10 @@ void DrawDebugVector(Player* player){
 	end.y= player->position.y -player->height;
 	DrawLine3D(start, end, PINK);
 	DrawCube(end, 0.1f, 0.1f, 0.1f, PINK);
+
+    DrawCube( (Vector3){player->position.x,
+                        player->position.y -player->height,
+                        player->position.z}, 0.1f, 0.1f, 0.1f, PINK);
 }
 
 #endif // SMCPHYS_H
