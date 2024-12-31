@@ -115,6 +115,7 @@ void ProcessInput(Player* player, bool is_tick20){
 	Vector2 mouseDelta= GetMouseDelta();
 	float sensitivity= SENSIVITY;
 	float acclerationMultiplier= 1.0f;
+	bool is_going_forward= false;
 
 	player->angles.y+= mouseDelta.x *sensitivity;
 	player->angles.x= Clamp(player->angles.x -mouseDelta.y *sensitivity, -PI/2, PI/2);
@@ -132,13 +133,18 @@ void ProcessInput(Player* player, bool is_tick20){
 
 	if(is_tick20){
 		Vector3 wishvel= {0};
-		if(IsKeyDown(KEY_W)) wishvel= Vector3Add(wishvel, forward);
+		if(IsKeyDown(KEY_W)){
+			wishvel= Vector3Add(wishvel, forward);
+			is_going_forward= true;
+		}
 		if(IsKeyDown(KEY_S)) wishvel= Vector3Subtract(wishvel, forward);
 		if(IsKeyDown(KEY_A)) wishvel= Vector3Add(wishvel, right);
 		if(IsKeyDown(KEY_D)) wishvel= Vector3Subtract(wishvel, right);
 
-		if(IsKeyDown(KEY_LEFT_CONTROL)) acclerationMultiplier= 1.3f;
-		if(IsKeyDown(KEY_LEFT_SHIFT)){
+		if(IsKeyDown(KEY_LEFT_CONTROL) && is_going_forward){
+			acclerationMultiplier= 1.3f;
+		}
+		else if(IsKeyDown(KEY_LEFT_SHIFT)){
 			acclerationMultiplier= 0.3f;
 			player->height= PLAYER_CROUCH_HEIGHT;
 		}
@@ -220,7 +226,7 @@ void UpdatePlayer(Player* player, float deltaTime) {
 	UpdateCamera(player);
 }
 
-void DrawVelocityVector(Player* player){
+void DrawDebugVector(Player* player){
 	Vector3 end= Vector3Add(player->position, player->velocity);
 	Vector3 start= player->position;
 	start.y-= player->height;
@@ -275,7 +281,7 @@ int main(){
 									player.position.y -player.height,
 									player.position.z}, 0.1f, 0.1f, 0.1f, PINK);
 
-				DrawVelocityVector(&player);
+				// DrawDebugVector(&player);
 			EndMode3D();
 
 			DrawFPS(10, 10);
