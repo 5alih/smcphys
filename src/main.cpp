@@ -13,7 +13,7 @@
 #define VERTICAL_DRAG_THRESHOLD 0.1f
 
 #define PLAYER_HEIGHT 1.62f
-#define PLAYER_SNEAK_HEIGHT 1.54f
+#define PLAYER_CROUCH_HEIGHT 1.54f
 #define SENSIVITY 0.002f
 
 typedef struct {
@@ -21,6 +21,7 @@ typedef struct {
 	Vector3 velocity;
 	Vector3 angles;
 	bool onGround;
+	float height;
 	Camera3D camera;
 } Player;
 
@@ -30,7 +31,8 @@ void InitPlayer(Player* player)
 	player->velocity= (Vector3){ 0.0f, 0.0f, 0.0f };
 	player->angles= (Vector3){ 0.0f, 0.0f, 0.0f };
 	player->onGround= false;
-	
+	player->height= PLAYER_HEIGHT;
+
 	player->camera.position= player->position;
 	player->camera.target= Vector3Add(player->position, 
 		(Vector3){ cosf(player->angles.y), 0.0f, sinf(player->angles.y) });
@@ -82,9 +84,9 @@ void ApplyGravity(Player* player){
 		if(oldPosition< player->position.y){
 			oldPosition= player->position.y;
 		}
-		else if(!didPrint && oldPosition!= PLAYER_HEIGHT && oldPosition>= player->position.y){
+		else if(!didPrint && oldPosition!= player->height && oldPosition>= player->position.y){
 			didPrint= true;
-			std::cout<< "jump height: "<< oldPosition -PLAYER_HEIGHT<< std::endl;
+			std::cout<< "jump height: "<< oldPosition -player->height<< std::endl;
 		}
 	}
 	else{
@@ -92,7 +94,7 @@ void ApplyGravity(Player* player){
 		didPrint= false;
 		if(!isFirstTime){
 			std::cout<< "Duration: "<< GetTime() -jumpStartTime << std::endl;
-			std::cout<< "Distance: "<< Vector3Distance(firstPos, player->position) +0.59375f<< std::endl;
+			std::cout<< "Distance: "<< Vector3Distance(firstPos, player->position) +0.5f<< std::endl;
 			std::cout<< "____________________________________________________"<< std::endl;
 		}	
 		isFirstTime= true;
@@ -136,7 +138,13 @@ void ProcessInput(Player* player, bool is_tick20){
 		if(IsKeyDown(KEY_D)) wishvel= Vector3Subtract(wishvel, right);
 
 		if(IsKeyDown(KEY_LEFT_CONTROL)) acclerationMultiplier= 1.3f;
-		if(IsKeyDown(KEY_LEFT_SHIFT))	acclerationMultiplier= 0.3f;
+		if(IsKeyDown(KEY_LEFT_SHIFT)){
+			acclerationMultiplier= 0.3f;
+			player->height= PLAYER_CROUCH_HEIGHT;
+		}
+		else{
+			player->height= PLAYER_HEIGHT;
+		}
 
 		if(IsKeyDown(KEY_SPACE) && player->onGround){
 			player->velocity.y= JUMP_VELOCITY;
@@ -191,8 +199,8 @@ void UpdatePlayer(Player* player, float deltaTime) {
 		tickAccumulator-= tickRate; // Subtract tick time but keep remainder
 	}
 	
-	if(player->position.y<= PLAYER_HEIGHT){
-		player->position.y= PLAYER_HEIGHT;
+	if(player->position.y<= player->height){
+		player->position.y= player->height;
 		player->onGround= true;
 	}
 	else{
@@ -215,8 +223,8 @@ void UpdatePlayer(Player* player, float deltaTime) {
 void DrawVelocityVector(Player* player){
 	Vector3 end= Vector3Add(player->position, player->velocity);
 	Vector3 start= player->position;
-	start.y-= PLAYER_HEIGHT;
-	end.y= player->position.y -PLAYER_HEIGHT;
+	start.y-= player->height;
+	end.y= player->position.y -player->height;
 	DrawLine3D(start, end, PINK);
 	DrawCube(end, 0.1f, 0.1f, 0.1f, PINK);
 }
@@ -264,7 +272,7 @@ int main(){
 				DrawCube( (Vector3){0, 1, 0} , 1.0f, 2.0f, 1.0f, YELLOW);
 				DrawCube( (Vector3){0, 0.5, 1} , 1.0f, 1.0f, 1.0f, DARKBLUE);
 				DrawCube( (Vector3){player.position.x, 
-									player.position.y -PLAYER_HEIGHT,
+									player.position.y -player.height,
 									player.position.z}, 0.1f, 0.1f, 0.1f, PINK);
 
 				DrawVelocityVector(&player);
