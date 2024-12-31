@@ -26,14 +26,14 @@ A single-header library that replicates Minecraft's movement physics in C/C++. B
 int main() {
     InitWindow(800, 600, "Example");
     
-    Player player;			// Create the player
-    InitPlayer(&player);	// Initialize player
+    Player player; // Create the player
+    InitPlayer(&player); // Initialize player
     
     while (!WindowShouldClose()) {
-        UpdatePlayer(&player, GetFrameTime());	// Update the player
+        UpdatePlayer(&player, GetFrameTime()); // Update the player
         
         BeginDrawing();
-            BeginMode3D(player.camera);			// Use player camera
+            BeginMode3D(player.camera); // Use player camera
                 // Your 3D rendering
             EndMode3D();
         EndDrawing();
@@ -48,14 +48,14 @@ int main() {
 int main() {
     InitWindow(800, 600, "Example");
     
-    Player player;			// Create the player
-    InitPlayer(&player);	// Initialize player
+    Player player; // Create the player
+    InitPlayer(&player); // Initialize player
     
     while (!WindowShouldClose()) {
-        UpdatePlayer(&player, GetFrameTime());	// Update the player
+        UpdatePlayer(&player, GetFrameTime()); // Update the player
         
         BeginDrawing();
-            BeginMode3D(player.camera);			// Use player camera
+            BeginMode3D(player.camera); // Use player camera
                 // Your 3D rendering
             EndMode3D();
         EndDrawing();
