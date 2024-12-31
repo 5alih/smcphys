@@ -76,6 +76,7 @@ void ProcessInput(Player* player, float deltaTime) {
 		if(player->onGround){
 			wishvel= Vector3Normalize(wishvel);
 
+
 			playerAcceleration.x= 20 *0.098 *acclerationMultiplier;
 			playerAcceleration.z= 20 *0.098 *acclerationMultiplier;
 			
@@ -94,7 +95,7 @@ void ProcessInput(Player* player, float deltaTime) {
 	player->velocity= Vector3Add(player->velocity, wishvel);
 
 	if(IsKeyDown(KEY_SPACE) && player->onGround){
-		// ApplyFriction(player, deltaTime);
+		// ApplyFriction(player, deltaTime, is_tick20);
 		player->velocity.y= JUMP_VELOCITY;
 
 		if(acclerationMultiplier== 1.3f){
@@ -107,7 +108,7 @@ void ProcessInput(Player* player, float deltaTime) {
 	}
 }
 
-void ApplyFriction(Player* player, float deltaTime){
+void ApplyFriction(Player* player, float deltaTime, bool is_tick20){
 	float speed= Vector2Length( (Vector2){player->velocity.x, player->velocity.z} );
 
 	if(speed < 0.01f){
@@ -115,18 +116,18 @@ void ApplyFriction(Player* player, float deltaTime){
 		return;
 	}
 
-	player->velocity.x*= FRICTION;
-	player->velocity.z*= FRICTION;
+	if(is_tick20){
+		player->velocity.x*= FRICTION;
+		player->velocity.z*= FRICTION;
+	}
 }
 
-void ApplyGravity(Player* player, float deltaTime){
+void ApplyGravity(Player* player, float deltaTime, bool is_tick20){
 	static float oldPosition= 0;
 	static bool didPrint= false;
 	static float timer= 0;
 	static bool isFirstTime= true;
 	static Vector3 firstPos= {0};
-
-	static int drag_counter= 1;
 
 	if(!player->onGround){
 		if(isFirstTime){
@@ -139,18 +140,16 @@ void ApplyGravity(Player* player, float deltaTime){
 
 		player->velocity.y-= GRAVITY *deltaTime;
 
-		if(drag_counter>= 1.0f/(20 * deltaTime) ){
+		if(is_tick20){
+			player->velocity.x*= FRICTION_AIR;
+			player->velocity.z*= FRICTION_AIR;
+			
 			player->velocity.y*= AIR_DRAG;
-			drag_counter= 0;
 		}
-		drag_counter++;
-		
-		player->velocity.x*= FRICTION_AIR;
-		player->velocity.z*= FRICTION_AIR;
 
-        if(fabs(player->velocity.y) < VERTICAL_DRAG_THRESHOLD){
-            player->velocity.y = 0.0f;
-        }
+		if(fabs(player->velocity.y) < VERTICAL_DRAG_THRESHOLD){
+			player->velocity.y = 0.0f;
+		}
 
 		timer++;
 		if(oldPosition< player->position.y){
@@ -174,11 +173,19 @@ void ApplyGravity(Player* player, float deltaTime){
 	}
 }
 
-void UpdatePlayer(Player* player, float deltaTime) {
-	if(player->onGround){
-	 	ApplyFriction(player, deltaTime);
+void UpdatePlayer(Player* player, float deltaTime){
+	bool is_tick20= false;
+	static int tick20_counter= 1;
+	if(tick20_counter>= 1.0f/(20 * deltaTime) ){
+		is_tick20= true;
+		tick20_counter= 0;
 	}
-	ApplyGravity(player, deltaTime);
+	tick20_counter++;
+
+	if(player->onGround){
+	 	ApplyFriction(player, deltaTime, is_tick20);
+	}
+	ApplyGravity(player, deltaTime, is_tick20);
 
 	ProcessInput(player, deltaTime);
 	
