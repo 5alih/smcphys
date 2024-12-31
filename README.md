@@ -2,7 +2,6 @@
 # smcphys.h
 
 A single-header library that replicates Minecraft's movement physics in C/C++. Built with raylib for rendering and input handling.
-There is a branch for C++ version too.
 
 ## Features
 - Accurate Minecraft-like movement physics
