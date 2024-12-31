@@ -74,7 +74,6 @@ int main() {
 ## Debug Tools
 - `DrawDebugVector(&player)`: Visualizes velocity vector (C)
 - `player.DrawDebugVector()`: Visualizes velocity vector (C++)
-- Built-in velocity magnitude display
 - Ground state indicator
 
 ## Dependencies
